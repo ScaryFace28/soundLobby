@@ -1,18 +1,23 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
+import { LobbyService } from './lobby.service';
 
 @Controller('lobby')
 export class LobbyController {
-  private lobbies = [];  // Временный массив для хранения лобби
+  constructor(private readonly lobbyService: LobbyService) {}
 
   @Get()
   getAllLobbies() {
-    return this.lobbies;
+    return this.lobbyService.findAll(); // Возвращает все лобби
   }
 
   @Post()
   createLobby(@Body() body: { name: string }) {
-    const newLobby = { id: Date.now(), name: body.name };
-    this.lobbies.push(newLobby);
-    return newLobby;
+    return this.lobbyService.create(body.name); // Создаёт новое лобби
+  }
+
+  @Delete(':id')
+  async deleteLobby(@Param('id') id: string) {
+    await this.lobbyService.remove(+id); // Удаляет лобби по ID
+    return { message: `Lobby with ID ${id} has been removed` };
   }
 }
